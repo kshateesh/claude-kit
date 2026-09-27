@@ -1,7 +1,8 @@
 # claude-kit
 
-A portable agent setup I drop into a project. Working agreement, three tested guardrails,
-two subagents, one pre-handover checklist. Installs into the project, not into your machine.
+A portable agent setup I drop into a project. Working agreement, four toolchain starters,
+three tested guardrails, two subagents, one pre-handover checklist.
+Installs into the project, not into your machine.
 
 Tool-agnostic where it can be: `AGENTS.md` is the open convention and is read by several
 coding agents. `CLAUDE.md` imports it and adds the Claude Code specifics.
@@ -31,12 +32,41 @@ nothing else. No global state, no dotfiles, no package installs.
 | `.claude/rules/frontend.md` | Component design, where state lives, effects, testing, accessibility. |
 | `.claude/rules/backend.md` | Scope, correctness, idempotency and money, tests. |
 | `.claude/rules/api-contracts.md` | Response shape, validation, pagination, breaking-change rules. |
+| `.claude/rules/scaffolding.md` | Which stack for which shape, and the setup details that cost time. |
 | `.claude/agents/code-reviewer.md` | Reviews a diff. Sonnet. Verdict, not prose. |
 | `.claude/agents/debugger.md` | Reproduces before fixing. Opus. Stops after two failed attempts. |
 | `.claude/skills/ship-check/SKILL.md` | `/ship-check` before handing anything over. |
 | `.claude/hooks/*.sh` | The three guardrails below. |
 | `.claude/settings.json` | Permissions, and the hook wiring. |
 | `verify.sh` | Tests for the guardrails. |
+| `starters/*.sh` | Bootstrap a toolchain and prove its test suite runs. |
+
+## Starters
+
+Scaffold the toolchain, never the solution. Each script runs the official scaffold, wires the
+test harness, installs this kit, and runs the suite so you see it green before you write a line.
+One smoke test is left behind to prove the wiring; delete it in your first minute.
+
+```bash
+./starters/frontend.sh    my-app   # Vite, React, TS, Vitest, Testing Library
+./starters/backend.sh     my-api   # Express, TS, tsx, Vitest, supertest
+./starters/fullstack.sh   my-app   # both, web/ and api/, Vite proxies /api
+./starters/backend-db.sh  my-api   # back end plus a repository seam, node:sqlite
+```
+
+Measured on a warm npm cache: 14s, 9s, 10s, 5s. Budget a minute on a cold one.
+
+Deliberately absent from all of them: router, state library, component library, CSS framework,
+auth, Docker, monorepo tooling. Every dependency present has a reason you can say out loud.
+
+`backend-db.sh` is the interesting one. It ships a repository interface with an in-memory
+implementation and a `node:sqlite` implementation, and runs **one contract test against both**,
+so they cannot drift. SQLite is built into Node 22.5 and later, so there is no native build step
+and no daemon. The suite detects it at runtime and skips that half on an older Node rather than
+failing.
+
+`.claude/rules/scaffolding.md` carries the same decisions into the project, so the agent follows
+them when extending an existing codebase rather than only when starting a new one.
 
 ## Guardrails, in three layers
 
@@ -75,14 +105,16 @@ expand `*` before the bare-glob check could reject it.
 
 1. **`AGENTS.md` is the agreement.** Failing test first, show real output, never invent an API,
    money is an integer in minor units. It is short so it is actually read.
-2. **The rules are split by concern** and imported from `CLAUDE.md`, so front-end and back-end
+2. **The starters scaffold a toolchain, not a solution.** Official Vite or a bare Express, plus
+   the test harness, green before I write anything. Nothing arrives that I cannot explain.
+3. **The rules are split by concern** and imported from `CLAUDE.md`, so front-end and back-end
    guidance are separate files rather than one wall of text.
-3. **The guardrails are enforcement, not advice.** Three layers: reads denied by config, writes
+4. **The guardrails are enforcement, not advice.** Three layers: reads denied by config, writes
    blocked by a hook, shell redirects blocked by another. `rm -rf` is scoped to the project.
-4. **The guardrails have tests.** `./verify.sh`, 27 cases, and it has already caught two real bugs.
-5. **Two subagents with deliberate model choices.** Review on Sonnet because it is a bounded
+5. **The guardrails have tests.** `./verify.sh`, 27 cases, and it has already caught two real bugs.
+6. **Two subagents with deliberate model choices.** Review on Sonnet because it is a bounded
    read-only pass. Debugging on Opus because root-causing is the part worth paying for.
-6. **It installs into the project and uninstalls cleanly.** Nothing global, nothing left behind.
+7. **It installs into the project and uninstalls cleanly.** Nothing global, nothing left behind.
 
 ## Design notes
 

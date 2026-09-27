@@ -8,6 +8,8 @@
 
 @.claude/rules/api-contracts.md
 
+@.claude/rules/scaffolding.md
+
 ## How I want you to work
 
 - Plan before editing anything non-trivial. Show me the plan and wait.

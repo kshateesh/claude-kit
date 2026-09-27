@@ -47,6 +47,7 @@ FILES=(
   ".claude/rules/frontend.md"
   ".claude/rules/backend.md"
   ".claude/rules/api-contracts.md"
+  ".claude/rules/scaffolding.md"
   ".claude/agents/code-reviewer.md"
   ".claude/agents/debugger.md"
   ".claude/skills/ship-check/SKILL.md"
