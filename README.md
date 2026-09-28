@@ -1,7 +1,7 @@
 # claude-kit
 
-A portable agent setup I drop into a project. Working agreement, four toolchain starters,
-three tested guardrails, two subagents, one pre-handover checklist.
+A portable agent setup I drop into a project. Working agreement, five toolchain starters,
+three tested guardrails, three subagents, one pre-handover checklist.
 Installs into the project, not into your machine.
 
 Tool-agnostic where it can be: `AGENTS.md` is the open convention and is read by several
@@ -33,8 +33,10 @@ nothing else. No global state, no dotfiles, no package installs.
 | `.claude/rules/backend.md` | Scope, correctness, idempotency and money, tests. |
 | `.claude/rules/api-contracts.md` | Response shape, validation, pagination, breaking-change rules. |
 | `.claude/rules/scaffolding.md` | Which stack for which shape, and the setup details that cost time. |
+| `.claude/rules/operability.md` | Liveness vs readiness, shutdown order, config, logs, migrations. |
 | `.claude/agents/code-reviewer.md` | Reviews a diff. Sonnet. Verdict, not prose. |
 | `.claude/agents/debugger.md` | Reproduces before fixing. Opus. Stops after two failed attempts. |
+| `.claude/agents/infra-reviewer.md` | Dockerfiles, manifests, Terraform, pipelines. Sonnet. |
 | `.claude/skills/ship-check/SKILL.md` | `/ship-check` before handing anything over. |
 | `.claude/hooks/*.sh` | The three guardrails below. |
 | `.claude/settings.json` | Permissions, and the hook wiring. |
@@ -52,9 +54,10 @@ One smoke test is left behind to prove the wiring; delete it in your first minut
 ./starters/backend.sh     my-api   # Express, TS, tsx, Vitest, supertest
 ./starters/fullstack.sh   my-app   # both, web/ and api/, Vite proxies /api
 ./starters/backend-db.sh  my-api   # back end plus a repository seam, node:sqlite
+./starters/backend-ops.sh my-api   # back end made operable: probes, drain, image, CI
 ```
 
-Measured on a warm npm cache: 14s, 9s, 10s, 5s. Budget a minute on a cold one.
+Measured on a warm npm cache: 14s, 9s, 10s, 5s, 11s. Budget a minute on a cold one.
 
 Deliberately absent from all of them: router, state library, component library, CSS framework,
 auth, Docker, monorepo tooling. Every dependency present has a reason you can say out loud.
@@ -64,6 +67,13 @@ implementation and a `node:sqlite` implementation, and runs **one contract test 
 so they cannot drift. SQLite is built into Node 22.5 and later, so there is no native build step
 and no daemon. The suite detects it at runtime and skips that half on an older Node rather than
 failing.
+
+`backend-ops.sh` is the one to run if a platform engineer is in the room. Separate liveness and
+readiness, a shutdown that fails readiness and keeps serving before it drains, config validated at
+boot, structured logs with a propagated request id, a multi-stage non-root image, a CI workflow and
+a Kubernetes manifest whose grace period matches the application's own drain. The readiness
+behaviour is tested rather than claimed: ten tests, including one asserting that `/ready` returns
+503 during shutdown while `/health` stays 200.
 
 `.claude/rules/scaffolding.md` carries the same decisions into the project, so the agent follows
 them when extending an existing codebase rather than only when starting a new one.

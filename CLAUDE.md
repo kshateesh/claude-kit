@@ -10,12 +10,15 @@
 
 @.claude/rules/scaffolding.md
 
+@.claude/rules/operability.md
+
 ## How I want you to work
 
 - Plan before editing anything non-trivial. Show me the plan and wait.
 - Scope each task tightly. A diff I cannot read in one screen is a diff I will not review properly.
 - Run the `code-reviewer` subagent on your own diff before calling something done.
 - Use the `debugger` subagent when something fails. Reproduce before fixing.
+- Run the `infra-reviewer` subagent on anything that touches a Dockerfile, a manifest, or the deploy path.
 - Run `/ship-check` before handing anything over.
 
 ## What is enforced rather than requested
