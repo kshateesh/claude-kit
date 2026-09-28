@@ -64,9 +64,8 @@ auth, Docker, monorepo tooling. Every dependency present has a reason you can sa
 
 `backend-db.sh` is the interesting one. It ships a repository interface with an in-memory
 implementation and a `node:sqlite` implementation, and runs **one contract test against both**,
-so they cannot drift. SQLite is built into Node 22.5 and later, so there is no native build step
-and no daemon. The suite detects it at runtime and skips that half on an older Node rather than
-failing.
+so they cannot drift. SQLite ships with Node from v22.5, so there is no native build step and no daemon. It is still
+marked experimental, so the suite detects it at runtime and skips that half rather than failing.
 
 `backend-ops.sh` is the one to run if a platform engineer is in the room. Separate liveness and
 readiness, a shutdown that fails readiness and keeps serving before it drains, config validated at

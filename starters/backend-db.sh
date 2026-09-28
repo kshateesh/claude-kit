@@ -6,9 +6,10 @@
 # build, and the SQLite implementation proves the seam is real rather than
 # theoretical. One contract test runs against both, so neither can drift.
 #
-# SQLite via node:sqlite, which is built into Node 22.5 and later: no native
-# build step, no daemon, no Docker. The suite detects it at runtime and skips
-# that half on an older Node rather than failing.
+# SQLite via node:sqlite, which ships with Node from v22.5: no native build step,
+# no daemon, no Docker. It is still marked experimental, and early 22.x releases
+# required --experimental-sqlite, which is why the suite detects it at runtime and
+# skips that half rather than failing.
 #
 # Reach for Postgres only when the task actually needs it. Twenty minutes of
 # Docker is twenty minutes not spent on the problem.

@@ -39,8 +39,9 @@ Default to a repository interface with an in-memory implementation, and say so o
 the logic stays testable in a short build, and the real schema and its constraints are named
 rather than implied.
 
-When persistence has to be real, `node:sqlite` is built into Node 22.5 and later: no native
-build, no daemon, no Docker. Run one contract test against every implementation so the
+When persistence has to be real, `node:sqlite` ships with Node from v22.5: no native build, no
+daemon, no Docker. It is still marked experimental and early 22.x releases needed the
+`--experimental-sqlite` flag, so detect it at runtime rather than assuming it is there. Run one contract test against every implementation so the
 in-memory version and the real one cannot drift.
 
 Reach for Postgres when the task genuinely needs it. Twenty minutes of Docker is twenty
