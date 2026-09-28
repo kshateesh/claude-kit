@@ -23,6 +23,26 @@
 - If it only derives state from other state, delete it and compute during render.
 - If it responds to a user action, it belongs in the event handler.
 - Anything an effect starts, it cleans up. Timers, subscriptions, in-flight requests.
+- StrictMode double-invokes effects in development on purpose. If that breaks something,
+  the effect is not idempotent or is not cleaning up. Fix the cleanup. Never remove StrictMode
+  to silence it.
+
+## React specifics worth getting right
+
+- Key lists by a stable id. An index as a key breaks on reorder and delete, and the symptom is
+  state appearing on the wrong row.
+- Changing a `key` deliberately resets a component. Prefer `<Form key={recordId} />` over an
+  effect that syncs props into state.
+- `useState` is for values the user sees. `useRef` is for values the render does not depend on:
+  a timeout handle, an abort controller, a request sequence number. Never read or write a ref
+  during render.
+- Uncontrolled inputs plus `FormData` at submit is the faster path when nothing outside the field
+  needs the value as it is typed. Reach for controlled when it does.
+- An error boundary catches errors during render, not in an event handler and not a rejected
+  promise. Handle those where they happen.
+- React 19: `ref` is a plain prop, so no `forwardRef`. `useActionState` removes the pending and
+  error boilerplate around a form submit. Do not reach for `use` or Server Components in a
+  Vite single-page app.
 
 ## Always build these
 
